@@ -1,0 +1,291 @@
+$(document).ready(function(){
+    $.ajax({
+        url: "http://127.0.0.1/ReceberDP.php",
+        type: "GET",
+        dataType: "json",
+        data : {"nomeU" : sessionStorage.getItem("nome")},
+        success: function(xhr){
+          
+            xhr.forEach(post => {
+                
+                CriaPost(post[0],post[1],post[2],post[3],post[4],"body")
+            
+              if( post[6] == 1){
+
+                setTimeout(function(){
+                    $("#"+post[3]+"").find(".like").find(".material-symbols-outlined").css({"color":"white"})
+                   },10)
+              }
+               
+                
+
+                
+               
+            });
+            
+        },
+        error: function(xhr){
+         
+        },
+
+    })
+})
+
+
+function CriaPost(t,c,e,id,qt,lug){
+        $(lug).append(`
+            <div id="${id}" class="postBod w-50 text-center" >
+                <p class="id">${id}</p>
+                <h1 class="text-white">${t}</h1>
+                <p class="imail">${e}</p>
+                <hr>
+                <div class="texto">
+                    ${c}
+                </div>
+                <hr>
+                
+                
+                    
+                        <button  class="like but" data-like="false">
+                            <span class="material-symbols-outlined i ">thumb_up</span>
+                        </button>
+                        <p class="quantiL">${qt}</p>
+              
+    
+                    <button class="comenta but">
+                        <span class="material-symbols-outlined i">speaker_notes</span>
+                    </button>
+                
+            </div>
+            `);
+    
+    
+}
+
+
+function CriaComentario(c,nr,e,id,qt){
+    if(e == nr){
+        let coment = $(`
+           
+                <div class="comentario w-75  bor card mb-5 text-white">
+                <p class="id">${id}</p>
+                        <div class="card-body">
+                            <p class="imail text-center">${e} Respondeu a si mesmo</p>
+                            <hr>
+                            <p>${c}</p>
+                        </div>
+                        <DIV class="card-footer">
+                            <button  class="likeC but " data-like="false">
+                                <span class="material-symbols-outlined ic">thumb_up</span>
+                            </button>
+                            <p class="quantiLC">${qt}</p>
+     
+                        </div>
+                        
+                </div>    
+                
+        
+            `);
+            $("#ContemComentarios").append(coment)
+            return coment
+    }
+    else{ let coment = $(`
+        <div class="comentario w-75  bor card mb-5 text-white">
+         <p class="id">${id}</p>
+                <div class="card-body">
+                    <p class="imail">${e} em resposta a ${nr}</p>
+                    <hr>
+                    <p>${c}</p>
+                </div>
+                <DIV class="card-footer">
+                    <button  class="likeC but" data-like="false">
+                        <span class="material-symbols-outlined ic">thumb_up</span>
+                    </button>
+                    <p class="quantiLC">${qt}</p>
+          
+    
+                
+                </DIV>
+                
+
+            </div>
+        `)
+        $("#ContemComentarios").append(coment)
+        return coment
+    }}
+   
+
+
+
+        //Like dos comentarios
+        $(document).on("click",".likeC",function(){
+            if($(this).attr("data-like") === "true"){
+                $(this).find(".material-symbols-outlined").addClass("cinza")
+                $(this).find(".material-symbols-outlined").removeClass("branco")
+                $(this).attr("data-like","false")
+                var pai = $(this).parent()
+             
+                qtl =  $(this).parent().find(".quantiLC")
+                $.ajax({
+                    url: "http://127.0.0.1/likes.php",
+                    type: "POST",
+                    data: {"id" : pai.parent().find(".id").text(), "id2" : "True" ,"tipo": "C", "Nome" : sessionStorage.getItem("nome")},
+                    dataType: "json",
+                    success: function(xhr){
+                    qtl.html(xhr)
+                    
+                    },
+                    error: function(){}
+                })
+            }else{
+                $(this).find(".material-symbols-outlined").addClass("branco")
+                $(this).find(".material-symbols-outlined").removeClass("cinza")
+                $(this).attr("data-like","true")
+                var pai = $(this).parent()
+               
+                qtl =  $(this).parent().find(".quantiLC")
+                $.ajax({
+                    url: "http://127.0.0.1/likes.php",
+                    type: "POST",
+                    data: {"id" : pai.parent().find(".id").text(),"tipo": "C", "Nome" : sessionStorage.getItem("nome")},
+                    dataType: "json",
+                    success: function(xhr){
+                    qtl.html(xhr)
+                    
+                    },
+                    error: function(){}
+                })
+            }
+        })
+
+
+
+//like dos posts
+    $(document).on("click",".like",function(){
+        if($(this).attr("data-like") === "true"){
+            $(this).find(".material-symbols-outlined").addClass("cinza")
+            $(this).find(".material-symbols-outlined").removeClass("branco")
+            $(this).attr("data-like","false")
+
+            qtl =  $(this).parent().find(".quantiL")
+            $.ajax({
+                url: "http://127.0.0.1/likes.php",
+                type: "POST",
+                data: {"id" : $(this).parent().find(".id").text(), "id2" : "True" , "Nome" : sessionStorage.getItem("nome")},
+                dataType: "json",
+                success: function(xhr){
+                qtl.html(xhr)
+                
+                },
+                error: function(){}
+            })
+        }else{
+            $(this).find(".material-symbols-outlined").addClass("branco")
+            $(this).find(".material-symbols-outlined").removeClass("cinza")
+            $(this).attr("data-like","true")
+            
+            qtl =  $(this).parent().find(".quantiL")
+            $.ajax({
+                url: "http://127.0.0.1/likes.php",
+                type: "POST",
+                data: {"id" : $(this).parent().find(".id").text() , "Nome" : sessionStorage.getItem("nome")},
+                dataType: "json",
+                success: function(xhr){
+                qtl.html(xhr)
+                
+                },
+                error: function(){}
+            })
+        }
+    })
+
+
+
+function fazC(x){
+    $.ajax({
+        url : "http://127.0.0.1/Comentarios.php",
+        type :"get",
+        dataType: "JSON", 
+        data : {"IDP" :x, "nomeU" : sessionStorage.getItem("nome")},
+        
+        success: function(xhr){
+            $("#ContemComentarios").html(" ")
+           
+            xhr.forEach(post => {
+            
+                let  comentario = CriaComentario(post[0],post[1],post[2],post[3],post[5])
+                if(post[5] == 0){
+
+                    $(comentario).find(".likeC").find(".material-symbols-outlined").removeClass("branco").addClass("cinza")
+                   
+                }else{
+                    if(post[6] === "1"){
+                    
+                    $(comentario).find(".likeC").find(".material-symbols-outlined").addClass("branco").removeClass("cinza")
+                   
+                    
+                
+                }}
+                   
+                      
+    
+            });
+            
+        },
+        error:  function(xhr){
+            alert(xhr.responseText)
+        }
+    })
+
+}
+
+$(document).on("click",".comenta",function(){
+        $("#comentar,#tampa").css({
+            "display" : "block",
+            "opacity" : "1"
+
+        })
+        $("#comentar").find("#buga").text($(this).parent().find(".id").text()+","+$(this).parent().find(".imail").text())
+        var l = $("#comentar").find("#buga").text().split(",")
+        fazC(l[0])
+
+
+})
+
+
+
+$("#Fechar").click(function(event){
+    
+   
+    $("#comentar,#tampa").css({
+        "opacity" : "0",
+        
+    })
+   setTimeout(function(){
+        $("#comentar,#tampa").css({"display" : "none"})
+   },400)
+})
+
+$("#Enviar").click(function(event){ 
+    event.preventDefault()
+
+    var pai = $(this).parent()
+    var vo = pai.parent().find("#buga").text()
+    var lo = vo.split(",")
+   
+    $.ajax({
+        url : "http://127.0.0.1/Comentarios.php",
+        type :"POST",
+        dataType: "JSON",
+        data: {"texto": $("#inputCome").val(), "IDP":lo[0],"NomeR" : lo[1], "NomeU":sessionStorage.getItem("nome")},
+        success : function(xhr){
+          
+            alert(xhr)
+
+           fazC(lo[0])
+            $("#Escreve")[0].reset()
+        },
+        error : function(){},
+
+    })
+})
